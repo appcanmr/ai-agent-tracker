@@ -87,31 +87,41 @@ def search_ai_agent_repos():
     """搜索 AI Agent 相关仓库"""
     repos = []
     
-    # 搜索策略1: 按热门 AI Agent 关键词搜索
-    for keyword in AI_AGENT_KEYWORDS:
-        print(f"Searching for: {keyword}")
-        url = f"{GITHUB_API_URL}/search/repositories?q={keyword}+in:name,description,readme&sort=stars&order=desc&per_page=15"
-        result = make_request(url)
-        
-        if result and "items" in result:
-            for item in result["items"]:
-                if item["full_name"] not in [r["full_name"] for r in repos]:
-                    repos.append(item)
-        
-        time.sleep(1)  # 避免触发 rate limit
+    # 更精准的搜索查询 - 只搜索 Python/JS/TS 相关的 AI Agent 项目
+    search_queries = [
+        # 直接搜索 AI agent 相关仓库
+        "AI agent language:Python stars:>100",
+        "autonomous agent language:Python stars:>50",
+        "LLM agent framework language:Python stars:>50",
+        "GPT agent framework language:Python stars:>50",
+        "multi-agent framework language:Python stars:>50",
+        "AI assistant autonomous language:Python stars:>30",
+        "LangChain langchain-AI stars:>100",
+        "AutoGen microsoft stars:>100",
+        "CrewAI crewai stars:>50",
+        "MetaGPT geekan stars:>50",
+        "Phi-data microsoft stars:>30",
+        "LlamaIndex llama-index stars:>100",
+        "DSPy stanford-oval stars:>30",
+        "Flowise FlowiseAI stars:>50",
+        # 热门 AI Agent 框架
+        "autonomous agent in:name,description stars:>500",
+        "AI operator in:name,description stars:>200",
+    ]
     
-    # 搜索策略2: 搜索最近活跃的仓库（按更新时间排序）
-    print("Searching for recently active AI agent repos...")
-    for keyword in ["agent", "autonomous", "llm-agent"]:
-        url = f"{GITHUB_API_URL}/search/repositories?q={keyword}+language:python&sort=updated&order=desc&per_page=10"
+    seen = set()
+    for query in search_queries:
+        print(f"Searching: {query[:50]}...")
+        url = f"{GITHUB_API_URL}/search/repositories?q={query.replace(' ', '+')}&sort=stars&order=desc&per_page=10"
         result = make_request(url)
         
         if result and "items" in result:
             for item in result["items"]:
-                if item["full_name"] not in [r["full_name"] for r in repos]:
+                if item["full_name"] not in seen:
+                    seen.add(item["full_name"])
                     repos.append(item)
         
-        time.sleep(1)
+        time.sleep(2)  # 避免 rate limit
     
     return repos
 
