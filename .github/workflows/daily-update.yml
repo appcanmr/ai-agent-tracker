@@ -42,6 +42,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions[bot]"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/appcanmr/ai-agent-tracker.git
           git add data/projects.json
           git diff --staged --quiet && exit 0
           git -c user.name='github-actions[bot]' -c user.email='action@github.com' commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')"
