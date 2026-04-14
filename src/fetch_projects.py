@@ -42,7 +42,10 @@ AI_AGENT_KEYWORDS = [
     "multi-agent",
     "agentic",
     "agent-framework",
-    "llm-agent"
+    "llm-agent",
+    "mcp",
+    "skill",
+    "harness"
 ]
 
 # 热门编程语言
