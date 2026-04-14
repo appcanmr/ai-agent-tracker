@@ -6,6 +6,9 @@ on:
     - cron: '0 8 * * *'
   workflow_dispatch:
     # 支持手动触发
+  push:
+    branches:
+      - main
 
 jobs:
   update-data:
@@ -13,7 +16,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,3 +50,31 @@ jobs:
           git diff --staged --quiet && exit 0
           git -c user.name='github-actions[bot]' -c user.email='action@github.com' commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')"
           git push
+
+  deploy-pages:
+    needs: update-data
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
