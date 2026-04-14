@@ -6,19 +6,24 @@ on:
     - cron: '0 8 * * *'
   workflow_dispatch:
     # 支持手动触发
-  push:
-    branches:
-      - main
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            data
+            src
+            .github
+          sparse-checkout-cone-mode: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,13 +36,13 @@ jobs:
         run: |
           python src/fetch_projects.py
 
-      - name: Commit changes
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.name "github-actions[bot]"
           git add data/projects.json
-          git diff --staged --quiet || git commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')"
-
-      - name: Push changes
-        run: |
+          git diff --staged --quiet && exit 0
+          git -c user.name='github-actions[bot]' -c user.email='action@github.com' commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')"
           git push
