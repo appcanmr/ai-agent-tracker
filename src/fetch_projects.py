@@ -107,6 +107,15 @@ def search_ai_agent_repos():
         "LlamaIndex llama-index stars:>100",
         "DSPy stanford-oval stars:>30",
         "Flowise FlowiseAI stars:>50",
+        # MCP 相关
+        "MCP server language:Python stars:>30",
+        "model context protocol language:Python stars:>30",
+        # Skill 相关
+        "AI skill framework language:Python stars:>30",
+        "agent skill orchestration language:Python stars:>30",
+        # Harness / Evaluation 相关
+        "LLM evaluation harness language:Python stars:>50",
+        "AI agent benchmark harness stars:>30",
         # 热门 AI Agent 框架
         "autonomous agent in:name,description stars:>500",
         "AI operator in:name,description stars:>200",
