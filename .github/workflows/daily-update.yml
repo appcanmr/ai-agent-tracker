@@ -17,6 +17,9 @@ jobs:
       contents: write
       pull-requests: write
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,8 +50,14 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/appcanmr/ai-agent-tracker.git
           git add data/projects.json
-          git diff --staged --quiet && exit 0
-          git -c user.name='github-actions[bot]' -c user.email='action@github.com' commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')"
+
+          # Always commit (even if no content change, we force-push to re-trigger Pages)
+          # --allow-empty allows committing when nothing changed (needed for re-deploy)
+          git -c user.name='github-actions[bot]' -c user.email='action@github.com' \
+            commit -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S')" || {
+            echo "No changes to commit (using --allow-empty to force update)"
+            git commit --allow-empty -m "Update AI Agent projects - $(date +'%Y-%m-%d %H:%M:%S') (force re-deploy)"
+          }
           git push
 
   deploy-pages:
@@ -58,6 +67,9 @@ jobs:
       contents: read
       pages: write
       id-token: write
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
     environment:
       name: github-pages
